@@ -259,6 +259,7 @@ void mlib_modctl_release(void *pointer) {
 }
 void* mlib_module_add_control(mlib_module_object *mod, void *data,
 		mlib_clear_callback clear) {
+
 }
 void* mlib_module_add_control2(mlib_module_object *mod, void *data) {
 
