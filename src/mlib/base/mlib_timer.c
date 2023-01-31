@@ -8,7 +8,7 @@
 #include <mlib/base.h>
 #include <mlib/timer.h>
 #include <mlib/mem.h>
-#include "local.h"
+#include <mlib_local.h>
 #include <pjlib.h>
 struct mlib_timer_controler {
 	pj_timer_heap_t *ht;
@@ -134,7 +134,8 @@ void mlib_timer_register(mlib_timer_c *control, mlib_timer_t *entry) {
 }
 
 void mlib_timer_unregister(mlib_timer_t *timer_entry) {
-	pj_timer_heap_cancel(timer_entry->ht, &timer_entry->entry);
+	if (timer_entry->ht)
+		pj_timer_heap_cancel(timer_entry->ht, &timer_entry->entry);
 	timer_entry->last_triger.sec = 0;
 }
 

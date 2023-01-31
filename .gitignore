@@ -18,3 +18,5 @@ config.guess
 config.status
 config.sub
 ltmain.sh
+.*
+

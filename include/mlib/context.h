@@ -8,8 +8,8 @@
 #ifndef MLIB_CONTEXT_H_
 #define MLIB_CONTEXT_H_
 
+#include <mlib/user_config.h>
 #include <pjlib.h>
-#include <mlib/config.h>
 
 typedef struct mlib_context_type mlib_context_t;
 typedef struct mlib_context_list mlib_context_l;

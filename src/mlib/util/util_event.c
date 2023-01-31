@@ -6,4 +6,4 @@
  */
 
 #include <mlib/event.h>
-#include <mlib_util/mlib_util.h>
+#include <mlib_util/util.h>

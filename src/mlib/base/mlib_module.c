@@ -9,8 +9,8 @@
 #include <mlib/base.h>
 #include <mlib/module.h>
 #include <mlib/mem.h>
+#include <mlib_local.h>
 #include <pjlib.h>
-#include "local.h"
 
 static pj_list clist;
 static pj_bool_t init = PJ_FALSE;
@@ -41,12 +41,19 @@ typedef struct __attribute__((aligned(4))) mlib_module_ctl {
 	mlib_clear_callback un_reg;
 } mlib_module_ctl;
 
+struct mod_release {
+	PJ_DECL_LIST_MEMBER(struct mod_release)
+	;
+	mlib_clear_callback clear;
+	void *data;
+};
 struct mlib_module_t {
 	PJ_DECL_LIST_MEMBER(struct mlib_module_t)
 	;
 	pj_str_t name;
 	int cnt_ref;
 	pj_pool_t *pool;
+
 #if MLIB_MINI_SYSTEM !=1
 	pj_lock_t *lock;
 #endif
@@ -58,10 +65,15 @@ struct mlib_module_t {
 		void *handle;
 	} dynamic;
 	pj_bool_t clear_lock;
-	struct {
-		PJ_DECL_LIST_MEMBER(struct mlib_module_ctl)
-		;
-	} list;
+
+	// clear callback opotion
+//	struct {
+//		PJ_DECL_LIST_MEMBER(struct mlib_module_ctl)
+//		;
+//	} list;
+	pj_list list;
+	pj_list rls;
+
 };
 /* funtion declere*/
 static void ctl_release(struct mlib_module_ctl *ctl);
@@ -77,18 +89,24 @@ MLIB_LOCAL void mlib_module_init() {
 	init = PJ_TRUE;
 }
 
+static int free_callback(void *data, const void *note) {
+	(void) data;
+	const struct mod_release *mod = note;
+	mod->clear(mod->data);
+	return mlib_search_notfound;
+}
+
 static void clear_mod(mlib_module_t *mod) {
 	if (mod->cnt_ref <= 0) {
 		pj_list_erase(mod);
 #if MLIB_MINI_SYSTEM !=1
 pj_lock_release(mod->lock);
 #endif
+		pj_list_search(&mod->rls, NULL, free_callback);
 		if (mod->type == module_type_dynamic_load) {
 			dlclose(mod->dynamic.handle);
-#if MLIB_MINI_SYSTEM != 1
-			pj_pool_release(mod->pool);
-#endif
 		}
+		mlib_pool_release(mod->pool);
 	} else {
 		mod->clear_lock = PJ_FALSE;
 	}
@@ -164,7 +182,7 @@ mlib_module_t* mlib_module_load(const pj_str_t *name, const pj_str_t *path) {
 void mlib_module_unload(mlib_module_t *mod) {
 	pj_bool_t clear_lock;
 	if (mod->name.slen > 0)
-		PJ_LOG(5,
+		PJ_LOG(6,
 				(MLIB_NAME,"Release module for %.*s", mod->name.slen , mod->name.ptr));
 	_mlock(mod);
 	clear_lock = !mod->clear_lock;
@@ -192,11 +210,26 @@ mlib_module_t* mlib_module_simple(const pj_str_t *name) {
 		pj_strdup(pool, &amc->name, name);
 	}
 	pj_list_init(&amc->list);
+	pj_list_init(&amc->rls);
+
 #if MLIB_MINI_SYSTEM !=1
 	pj_lock_create_recursive_mutex(pool, name, &amc->lock);
 #endif
 	pj_list_insert_after(&clist, amc);
 	return amc;
+}
+pj_pool_t* mlib_module_pool(mlib_module_t *mod) {
+	return mod->pool;
+}
+void mlib_module_add_callback(mlib_module_t *mod, void *data,
+		mlib_clear_callback clear) {
+	struct mod_release *mrls = pj_pool_alloc(mod->pool,
+			sizeof(struct mod_release));
+	mrls->clear = clear;
+	mrls->data = data;
+	_mlock(mod)
+		pj_list_insert_after(&mod->rls, mrls);
+	_mrls(mod)
 }
 void mlib_module_conf(const mlib_context_l *ctx) {
 
@@ -207,7 +240,7 @@ void mlib_module_conf(const mlib_context_l *ctx) {
 //static void ctl_release(struct mlib_module_ctl *ctl) {
 
 static void ctl_release(struct mlib_module_ctl *ctl) {
-	PJ_LOG(5, (MLIB_FUNC,"release mod"));
+	PJ_LOG(6, (MLIB_FUNC,"release mod"));
 	pj_bool_t clear_lock;
 	mlib_module_t *mod = ctl->mctl;
 	_mlock(ctl->mctl);
@@ -217,6 +250,10 @@ static void ctl_release(struct mlib_module_ctl *ctl) {
 	if (ctl->un_reg)
 		ctl->un_reg(ctl + 1);
 	_mrls(ctl->mctl)
+#if MLIB_MODULE_TMP_POOL
+	if (ctl->pool)
+		mlib_pool_release(ctl->pool);
+#endif
 	if (clear_lock) {
 		clear_mod(mod);
 	}
@@ -237,7 +274,11 @@ void* mlib_modctl_alloc(mlib_module_t *mctl, int size,
 		PJ_LOG(4, (MLIB_FUNC,"add more than 4 byte to avoid conflit"));
 	}
 	pj_pool_t *pool;
+#if MLIB_MODULE_TMP_POOL
+	pool = mlib_pool_create("mpool", MLIB_POOL_SIZE, MLIB_POOL_SIZE);
+#else
 	pool = mctl->pool;
+#endif
 	struct mlib_module_ctl *mod;
 	int z = sizeof(struct mlib_module_ctl);
 	void *res = pj_pool_zalloc(pool, z + size);
@@ -256,11 +297,4 @@ void* mlib_modctl_alloc(mlib_module_t *mctl, int size,
 
 void mlib_modctl_release(void *pointer) {
 	mlib_mem_mask_destroy(pointer);
-}
-void* mlib_module_add_control(mlib_module_object *mod, void *data,
-		mlib_clear_callback clear) {
-
-}
-void* mlib_module_add_control2(mlib_module_object *mod, void *data) {
-
 }

@@ -6,8 +6,8 @@
  */
 
 #include <mlib/mem.h>
+#include <mlib_local.h>
 #include <pj/rbtree.h>
-#include "local.h"
 static pj_rbtree mem_tree;
 #define MLIB_MEM_LOCK
 

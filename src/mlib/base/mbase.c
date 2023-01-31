@@ -6,9 +6,9 @@
  */
 
 #include <mlib/base.h>
+#include <mlib_local.h>
 #include <pjlib-util.h>
 #include <pjlib.h>
-#include <local.h>
 
 static pj_caching_pool mlib_cp;
 static pj_bool_t core_init = PJ_FALSE;
@@ -22,7 +22,7 @@ pj_status_t mlib_init() {
 		return 0;
 	core_init = PJ_TRUE;
 	pj_status_t init = pj_init();
-	pj_log_set_level(5);
+	pj_log_set_level(3);
 	if (init != PJ_SUCCESS)
 		return init;
 	init = pjlib_util_init();

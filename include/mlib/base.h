@@ -8,9 +8,11 @@
 #ifndef MLIB_BASE_H_
 #define MLIB_BASE_H_
 
+#include <mlib/user_config.h>
 #include <pj/types.h>
-#include <mlib/config.h>
 typedef void (*mlib_clear_callback)(void *user_data);
+
+/* atribute define */
 #define MLIB_LOCAL __attribute__ ((visibility ("hidden")))
 
 #define MLIB_NAME (strrchr(__FILE__, MLIB_PATH_SP) ? strrchr(__FILE__,  MLIB_PATH_SP) + 1 : __FILE__)  // file name
@@ -29,6 +31,11 @@ typedef void (*mlib_clear_callback)(void *user_data);
 #define mlib_size_algin(size) ( size  + size % 1024 )
 
 #define MLIB_POOL_SIZE 8192
+
+/* enum define */
+enum mlib_search_result {
+	mlib_search_found = 0, mlib_search_notfound = 1
+};
 
 /* struct declear */
 

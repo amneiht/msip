@@ -6,7 +6,7 @@
  */
 
 #include <mlib/context.h>
-#include "local.h"
+#include <mlib_local.h>
 #include <pjlib-util.h>
 
 struct mlib_context_type {

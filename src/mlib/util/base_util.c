@@ -6,8 +6,8 @@
  */
 
 #include <mlib/timer.h>
-#include "../local.h"
-#include <mlib_util/mlib_util.h>
+#include <mlib_local.h>
+#include <mlib_util/util.h>
 static mlib_timer_c *main_timer;
 static mlib_event_t *evt;
 static pj_bool_t need_init = PJ_TRUE;

@@ -9,9 +9,9 @@
 #define MLIB_MODULE_H_
 
 #include <pj/types.h>
-#include <mlib/config.h>
 #include <mlib/context.h>
 #include <mlib/base.h>
+#include <mlib/user_config.h>
 typedef struct mlib_module_t mlib_module_t;
 
 #define MLIB_MOD_DECL(load , unload , destroy) \
@@ -29,11 +29,14 @@ void mlib_module_conf(const mlib_context_l *ctx);
 
 mlib_module_t* mlib_module_simple(const pj_str_t *name);
 
-mlib_module_t* mlib_module_load2(const pj_str_t *name, const char *path);
+pj_pool_t* mlib_module_pool(mlib_module_t *mod);
+//mlib_module_t* mlib_module_load2(const pj_str_t *name, const char *path);
 
-void* mlib_module_add_control(mlib_module_object *mod, void *data,
+/**
+ * Add callback when module already remove
+ */
+void mlib_module_add_callback(mlib_module_t *mod, void *data,
 		mlib_clear_callback clear);
-void* mlib_module_add_control2(mlib_module_object *mod, void *data);
 /* module alloc control */
 /**
  * alloc data and bind it to module memory control
@@ -47,5 +50,6 @@ void* mlib_modctl_alloc(mlib_module_t *mctl, int size,
 void mlib_modctl_list_destroy(pj_list *list);
 
 pj_pool_t* mlib_modctl_pool(void *pointer);
+void mlib_modctl_release(void *pointer);
 
 #endif /* MLIB_MODULE_H_ */

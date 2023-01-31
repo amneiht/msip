@@ -6,10 +6,11 @@
  */
 
 #include <mlib/module.h>
+#include <mlib/mem.h>
 #include <mlib/control.h>
+#include <mlib_local.h>
 #include <pj/list.h>
 #include <pj/lock.h>
-#include "../local.h"
 /* control handle pointer*/
 #define _c_lock(control)  pj_lock_acquire(control->lock); {
 #define _c_rls(control)         } pj_lock_release(control->lock);

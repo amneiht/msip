@@ -5,8 +5,8 @@
  *      Author: amneiht
  */
 
-#ifndef MLIB_LOCAL_H_
-#define MLIB_LOCAL_H_
+#ifndef MLIB_MLIB_LOCAL_H_
+#define MLIB_MLIB_LOCAL_H_
 
 #include <mlib/base.h>
 #include <mlib/module.h>
@@ -22,10 +22,6 @@ pj_memcpy(a->ptr,b,a->slen)
 #define mlib_align(size , byte) ( (size%byte)?(size + byte -size%byte):size)
 /* mlib */
 
-enum mlib_search_result {
-	mlib_search_found = 0, mlib_search_notfound = 1
-};
-
 MLIB_LOCAL mlib_module_t* _mlib_mod();
 
 /* tree funtion */
@@ -37,4 +33,4 @@ typedef void (*tree_handle)(void *node, void *user_data);
 MLIB_LOCAL void _mlib_mem_init();
 MLIB_LOCAL void _mlib_mem_close();
 
-#endif /* MLIB_LOCAL_H_ */
+#endif /* MLIB_MLIB_LOCAL_H_ */

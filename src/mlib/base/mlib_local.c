@@ -5,11 +5,11 @@
  *      Author: amneiht
  */
 
-#include "local.h"
 #include <pjlib-util/json.h>
 #include <pj/pool.h>
 #include <pj/string.h>
 #include <mlib/mem.h>
+#include <mlib_local.h>
 void mlib_modctl_list_destroy(pj_list *list) {
 	pj_list *p, *end;
 	end = list;

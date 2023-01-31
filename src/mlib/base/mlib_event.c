@@ -7,7 +7,7 @@
 
 #include <mlib/event.h>
 #include <mlib/mem.h>
-#include "local.h"
+#include <mlib_local.h>
 
 #define CORE_START
 #define CORE_END
