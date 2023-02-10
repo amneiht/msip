@@ -152,3 +152,4 @@ pj_bool_t msip_ua_unregister(msip_ua *ua) {
 	ua->login.regc = NULL;
 	return PJ_TRUE;
 }
+

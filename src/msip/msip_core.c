@@ -10,6 +10,7 @@
 MLIB_LOCAL struct msip_system *_msip_obj = NULL;
 extern MLIB_LOCAL void _init_sip_ua();
 extern void MLIB_LOCAL _mlib_media_init();
+MLIB_LOCAL void _msip_inv_module();
 
 static pj_bool_t init = PJ_FALSE;
 
@@ -25,8 +26,7 @@ static void clear_sip(void *arg) {
 	_msip_obj = NULL;
 	init = PJ_FALSE;
 }
-static void util_event_handle(void *user_data, int type,
-		mlib_container *event_data) {
+static void util_event_handle(void *user_data, int type, void *event_data) {
 	if (type == MLIB_CLOSE) {
 		mlib_module_unload(_msip_obj->mod);
 	}
@@ -36,7 +36,7 @@ pj_status_t msip_init() {
 		return 1;
 
 	pj_status_t status = mlib_init();
-	pj_str_t name = pj_str("Msip");
+	pj_str_t name = pj_str("sip");
 	mlib_module_t *sip_mod = mlib_module_simple(&name);
 	_msip_obj = pj_pool_zalloc(mlib_module_pool(sip_mod),
 			sizeof(struct msip_system));
@@ -69,6 +69,7 @@ pj_status_t msip_init() {
 	// module register
 	_init_sip_ua();
 	_mlib_media_init();
+	_msip_inv_module();
 	// handle for close
 	mlib_event_handle_t *hand = mlib_event_handle_create(sip_mod,
 			util_event_handle, NULL, NULL);

@@ -60,6 +60,7 @@ pj_bool_t mlib_timer_entry_isloop(mlib_timer_t *entry);
 void mlib_timer_entry_change_trigger_time(mlib_timer_t *entry, pj_int32_t delay);
 pj_int32_t mlib_timer_entry_get_trigger_time(mlib_timer_t *entry);
 pj_bool_t mlib_timer_entry_is_active(mlib_timer_t *entry);
+void mlib_timer_entry_active(mlib_timer_t *entry);
 /*end timer entry funtion */
 
 /**

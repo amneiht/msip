@@ -13,35 +13,24 @@
 #include <msip/msip.h>
 #include <mlib_util/ui.h>
 
-static void pool_rls(void *arg) {
-}
 void test_ua() {
-	pj_str_t name = pj_str("5001");
-	pj_str_t pass = pj_str("5001");
-	int port = 20001;
-	pj_str_t host = pj_str("192.168.1.35");
+	pj_str_t name = pj_str("500");
+	pj_str_t pass = pj_str("500");
+	int port = 34001;
+	pj_str_t host = pj_str("192.168.100.34");
 	pj_str_t transport = pj_str("udp");
 	msip_ua *uas = msip_ua_create(&name, &pass, &host, port, &transport);
 	msip_ua_register(uas);
-
-// second ua
-	name = pj_str("5002");
-	pass = pj_str("5002");
-	uas = msip_ua_create(&name, &pass, &host, port, &transport);
-	msip_ua_register(uas);
-
 }
 static void ui_f(void *ui_data, const pj_str_t *input) {
 	(void) ui_data;
-//	PJ_LOG(1, (MLIB_FUNC,"data is %.*s",(int)input->slen , input->ptr));
-	msip_close();
+	PJ_LOG(1, (MLIB_FUNC,"data is %.*s",(int)input->slen , input->ptr));
 }
 static void ui_p(void *ui_data, const pj_str_t *input) {
 	mlib_util_event_send(MLIB_CLOSE);
 }
 static mlib_command mctl[] = { { "ui", "test", ui_f, NULL }, //
 		{ "ui", "exit", ui_p, NULL } };
-
 extern void console_init_mod();
 extern void test_mod_init();
 int main(void) {
@@ -56,6 +45,6 @@ int main(void) {
 	test_ua();
 	mlib_loop();
 	mlib_close();
-	sleep(1);
+
 	return 0;
 }

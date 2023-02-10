@@ -34,6 +34,8 @@ msip_ua* msip_ua_find_by_uri(pjsip_uri *uri);
 msip_ua* msip_ua_find_by_name(pj_str_t *name);
 msip_ua* msip_ua_find_by_msg(pjsip_msg *msg);
 
+// call handle
+pj_list* msip_ua_list_call(msip_ua *ua);
 // uri formart <sip:"$user"@"$serverhost":"@port">
 pj_bool_t msip_ua_print_uri(msip_ua *ua, pj_str_t *uri);
 

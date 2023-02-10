@@ -10,13 +10,15 @@
 #include <pj/string.h>
 #include <mlib/mem.h>
 #include <mlib_local.h>
-void mlib_modctl_list_destroy(pj_list *list) {
-	pj_list *p, *end;
+void mlib_mem_release_list(pj_list *list) {
+	pj_list *p, *end, *s;
 	end = list;
 	p = list->next;
 	while (p != end) {
-		p = p->next;
-		mlib_mem_mask_destroy(p->prev);
+		s = p->next;
+		pj_list_erase(p);
+		mlib_mem_mask_destroy(p);
+		p = s;
 	}
 }
 MLIB_LOCAL pj_json_elem* _mlib_json_clone(pj_pool_t *pool,

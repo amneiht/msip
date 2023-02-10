@@ -38,9 +38,13 @@ void mlib_util_event_send(mlib_event evttype) {
 }
 static pj_bool_t is_stop(void *arg) {
 	pj_bool_t *res = arg;
+	if (!*res) {
+		if (mlib_module_count() <= 1)
+			return PJ_FALSE;
+	}
 	return *res;
 }
-static void event_handle(void *user_data, int type, mlib_container *event_data) {
+static void event_handle(void *user_data, int type, void *event_data) {
 	pj_bool_t *res = user_data;
 	if (type == MLIB_CLOSE) {
 		*res = PJ_FALSE;

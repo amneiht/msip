@@ -29,6 +29,7 @@ typedef void (*mlib_clear_callback)(void *user_data);
 
 #define mlib_alloca(type) (type *) alloca( sizeof(type))
 #define mlib_size_algin(size) ( size  + size % 1024 )
+#define mlib_list(a  , b ) struct { PJ_DECL_LIST_MEMBER( a) ;} b ;
 
 #define MLIB_POOL_SIZE 8192
 

@@ -19,8 +19,7 @@ extern "C" {
 typedef struct mlib_event_handle_t mlib_event_handle_t;
 typedef struct mlib_event_t mlib_event_t;
 
-typedef void (*mlib_handle_p)(void *user_data, int type,
-		mlib_container *event_data);
+typedef void (*mlib_handle_p)(void *user_data, int type, void *event_data);
 
 /// create custom event publicser for user
 mlib_event_t* mlib_event_create(mlib_module_t *mod, const char *event_name);

@@ -17,6 +17,9 @@ static mlib_module_t *main_module;
 extern MLIB_LOCAL void mlib_module_init();
 extern MLIB_LOCAL void mlib_module_close();
 
+#if MLIB_MEM_DEBUG == 1
+extern MLIB_LOCAL void mem_init_debug();
+#endif
 pj_status_t mlib_init() {
 	if (core_init)
 		return 0;
@@ -36,13 +39,17 @@ pj_status_t mlib_init() {
 	mlib_module_init();
 	pj_str_t name = pj_str("mlib");
 	main_module = mlib_module_simple(&name);
-	_mlib_mem_init();
+	// for memdebug
+#if MLIB_MEM_DEBUG == 1
+	mem_init_debug();
+#endif
+
 	return 0;
 
 }
 void mlib_close() {
 	mlib_module_close();
-	_mlib_mem_close();
+//	_mlib_mem_close();
 	pj_shutdown();
 	core_init = PJ_FALSE;
 }

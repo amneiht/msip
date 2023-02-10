@@ -132,11 +132,20 @@ void mlib_timer_register(mlib_timer_c *control, mlib_timer_t *entry) {
 	pj_timer_heap_schedule(control->ht, &entry->entry, &delay);
 
 }
-
+void mlib_timer_entry_active(mlib_timer_t *entry) {
+	if (entry->ht) {
+		pj_time_val delay;
+		delay.sec = entry->triger_time / 1000;
+		delay.msec = entry->triger_time % 1000;
+		pj_gettimeofday(&entry->last_triger);
+		pj_timer_heap_schedule(entry->ht, &entry->entry, &delay);
+	}
+}
 void mlib_timer_unregister(mlib_timer_t *timer_entry) {
 	if (timer_entry->ht)
 		pj_timer_heap_cancel(timer_entry->ht, &timer_entry->entry);
 	timer_entry->last_triger.sec = 0;
+	timer_entry->ht = NULL;
 }
 
 mlib_timer_t* mlib_timer_entry_create(mlib_module_t *mod, char *name,

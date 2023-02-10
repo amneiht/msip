@@ -10,15 +10,18 @@
 
 #include <mlib/event.h>
 #include <msip/ua.h>
+#include <pjsip-ua/sip_inv.h>
+#include <pjmedia/sdp.h>
 enum MSIP_EVENT_INV_STATE {
 	// register event
 	MSIP_EVENT_REGISTERING = 0,
 	MSIP_EVENT_REGISTER_OK,
 	MSIP_EVENT_REGISTER_FAILSE,
 	// Call event
-	MSIP_EVENT_INV_STATE_START, // send event when call MSIP_ua_call()
+	MSIP_EVENT_INV_STATE_START, // send event when call msip_ua_call()
 	MSIP_EVENT_INV_STATE_START_FALSE, // send event when no match call and can not send invite
-	MSIP_EVENT_INV_STATE_INCOMING, // send event when recieve SIP IVITE
+	MSIP_EVENT_INV_STATE_INCOMING, // send event when recieve SIP INVITE
+	MSIP_EVENT_INV_STATE_INCOMING_FALSE, // send when cant not respone  SIP INVITE
 	MSIP_EVENT_INV_STATE_MEDIA, // send event when sdp exchange OK
 	MSIP_EVENT_INV_STATE_DISCONNECTED, // send event when call is close
 	MSIP_EVENT_MAX

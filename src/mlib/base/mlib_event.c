@@ -45,7 +45,7 @@ struct mlib_event_t* get_id(int id) {
 	return pj_list_search(&hlist, &id, find_id);
 }
 static void list_destroy(pj_list *list) {
-	mlib_modctl_list_destroy(list);
+	mlib_mem_release_list(list);
 }
 static void _mlib_event_init() {
 // event destroy ler
@@ -100,8 +100,10 @@ static void event_handle_clear(void *arg) {
 	mlib_event_t *evt = handle->parrent;
 	if (evt == NULL || evt->is_destroy) {
 		PJ_LOG(5,
-				(MLIB_FUNC, "Remove handle to event %.*s", (int) evt->name.slen, evt->name.ptr));
+				(MLIB_FUNC, "Can Not remove handle to event %.*s", (int) evt->name.slen, evt->name.ptr));
 	}
+
+	pj_list_erase(handle);
 	if (handle->clear)
 		handle->clear(handle->data);
 }
@@ -135,13 +137,6 @@ struct evt_data {
 	int type;
 	void *data;
 };
-
-static pj_bool_t send_event(void *data, const void *list) {
-	const mlib_event_handle_t *han = list;
-	struct evt_data *evt = (struct evt_data*) data;
-	han->handle(han->data, evt->type, evt->data);
-	return mlib_search_notfound;
-}
 void mlib_event_send(const mlib_event_t *evt, int type, void *data) {
 	if (evt == NULL || evt->is_destroy) {
 		PJ_LOG(5,
@@ -149,8 +144,16 @@ void mlib_event_send(const mlib_event_t *evt, int type, void *data) {
 		return;
 	}
 	pj_lock_acquire(evt->lock);
-	struct evt_data em = { .type = type, .data = data };
-	pj_list_search((void*) &evt->list, &em, send_event);
+//	struct evt_data em = { .type = type, .data = data };
+//	pj_list_search((void*) &evt->list, &em, send_event);
+	mlib_event_handle_t *first, *last, *point;
+	first = (mlib_event_handle_t*) evt->list.next;
+	last = (mlib_event_handle_t*) &evt->list;
+	while (last != first) {
+		point = first->next;
+		first->handle(first->data, type, data);
+		first = point;
+	}
 	pj_lock_release(evt->lock);
 }
 

@@ -38,7 +38,7 @@ struct mlib_control_list {
 /* control list funtion */
 static void clear_list(void *arg) {
 	mlib_control_list *list = arg;
-	mlib_modctl_list_destroy(&list->list);
+	mlib_mem_release_list(&list->list);
 	pj_lock_destroy(list->lock);
 }
 mlib_control_list* mlib_control_list_create(mlib_module_t *mod,

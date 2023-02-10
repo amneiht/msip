@@ -14,7 +14,20 @@
 #include <mlib/module.h>
 #include <msip/ua.h>
 #include <mlib/timer.h>
+#include <msip/inv.h>
 
+#define local_str(name , len ) pj_str_t * name = mlib_alloca(pj_str_t); \
+name->slen = len; \
+name->ptr = alloca(len+4); \
+name->ptr[len] = 0
+
+#define msip_cvstr(a,b) pj_str_t* a = alloca(sizeof(pj_str_t)) ; \
+a->slen = strlen(b); \
+a->ptr = alloca(a->slen+1); \
+a->ptr[a->slen]	= 0 ;\
+pj_memcpy(a->ptr,b,a->slen)
+
+/*  struct and data define  */
 enum data_position {
 	pos_ua = 0, // postion of ua
 	pos_call, // postion of call
@@ -23,7 +36,8 @@ enum data_position {
 	pos_callee, //
 	pos_local_sdp, //postion of local_sdp
 	pos_remote_sdp, // postion of remote_sdp
-	pos_media // postion of media object
+	pos_media, // postion of media object
+	pos_active,
 };
 
 struct msip_system {
@@ -41,11 +55,13 @@ struct msip_system {
 };
 
 struct msip_ua {
-	PJ_DECL_LIST_MEMBER(struct asip_ua)
+	PJ_DECL_LIST_MEMBER(struct msip_ua)
 	;
 	pj_pool_t *pool;
 	int port;
 	pj_str_t transport;
+	pj_bool_t auto_accept;
+	pj_lock_t *lock;
 	struct {
 		pj_str_t uid;
 		int localport;
@@ -59,25 +75,33 @@ struct msip_ua {
 		int false_cont;
 		pjsip_regc *regc;
 	} login;
-	struct {
-		PJ_DECL_LIST_MEMBER(struct asip_call)
-		;
-	} call;
-
+	pj_list call;
+//	mlib_list(msip_call ,call )
 };
+
 struct msip_media_t {
 	PJ_DECL_LIST_MEMBER(struct msip_media_t)
 	;
-	pj_str_t module_name;
-	int pri;
-	pj_bool_t (*on_start_call)(msip_call *call, void *mod_data);
-	pj_bool_t (*on_call_incoming)(msip_call *call,
-			pjmedia_sdp_session *remote_sdp, void *user_data);
-	pj_bool_t (*match_media)(const pj_str_t *media);
-	pj_bool_t (*match_sdp)(const pjmedia_sdp_session *sdp);
+	struct msip_media_obj media;
 	mlib_clear_callback clear;
-	void *data;
 };
+
+struct msip_call {
+	PJ_DECL_LIST_MEMBER(struct msip_call)
+	;
+	msip_ua *ua;
+	pj_pool_t *pool;
+	pj_str_t caller;
+	pj_str_t callee;
+	pj_bool_t stop;
+	pj_bool_t is_caller;
+	pjsip_inv_session *inv;
+	pj_time_val wait;
+	int state;
+	msip_media_t *mod;
+};
+
+/* local funtion */
 
 extern MLIB_LOCAL struct msip_system *_msip_obj;
 MLIB_LOCAL int msip_ua_transport_port(msip_ua *ua);
@@ -86,4 +110,8 @@ MLIB_LOCAL int msip_ua_transport_port(msip_ua *ua);
 
 MLIB_LOCAL void _msip_event_send(int id, mlib_container *con);
 
+typedef pj_int32_t (*element_cmp)(const pj_list_type *ele1,
+		const pj_list_type *ele2);
+
+MLIB_LOCAL void msip_list_add(pj_list *a, pj_list_type *b, element_cmp ele_cmp);
 #endif /* MSIP_MSIP_LOCAL_H_ */

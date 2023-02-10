@@ -10,6 +10,7 @@
 
 #include <mlib/event.h>
 #include <mlib/timer.h>
+#include <mlib_util/ui.h>
 
 typedef enum mlib_event {
 	MLIB_CLOSE, // data is NULL
