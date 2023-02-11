@@ -27,10 +27,10 @@ struct mod_commad {
 	;
 	pj_str_t name;
 	pj_pool_t *tmp;
-//	pj_list cmlist;
-	mlib_list(struct ui_cmd , cmlist)
+	pj_list cmlist;
+//	mlib_list(struct ui_cmd , cmlist)
 
-	}
+}
 ;
 
 struct ui_cmd {
@@ -89,7 +89,7 @@ static void ui_unrreg(void *arg) {
 	struct mod_commad *mcmd = us->parrent;
 	if (pj_list_size(&mcmd->cmlist) == 0)
 		mlib_mem_mask_destroy(mcmd);
-	PJ_LOG(2, ("ui", "clear data for %.*s",(int)us->name.slen , us->name.ptr));
+	PJ_LOG(4, ("ui", "clear data for %.*s",(int)us->name.slen , us->name.ptr));
 }
 static void add_cmd(mlib_module_t *mod, struct mod_commad *cmd,
 		const mlib_command *data) {
