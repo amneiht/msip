@@ -29,8 +29,12 @@ mlib_context_l* mlib_context_list_prase2(pj_pool_t *pool, char *buffer,
 /* get context with specify name from context list*/
 mlib_context_t* mlib_context_list_find(const mlib_context_l *list,
 		const pj_str_t *name);
+mlib_context_t* mlib_context_list_find2(const mlib_context_l *list,
+		const char *name);
 mlib_context_val* mlib_context_type_get_value(const mlib_context_t *ctx,
 		const pj_str_t *val_name);
+mlib_context_val* mlib_context_type_get_value2(const mlib_context_t *ctx,
+		const char *val_name);
 
 /*context value to type*/
 const pj_str_t* mlib_context_val_to_str(const mlib_context_val *val);

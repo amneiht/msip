@@ -51,7 +51,7 @@ const pj_str_t* msip_ua_get_transport(msip_ua *ua) {
 //create ua
 static void sip_ua_clear(void *arg) {
 	msip_ua *uas = arg;
-	PJ_LOG(1, (MLIB_NAME,"Release us :%s",uas->login.cred.username.ptr));
+	PJ_LOG(4, (MLIB_NAME,"Release us :%s",uas->login.cred.username.ptr));
 	pj_list_erase(uas);
 	if (uas->login.regc != NULL) {
 		pjsip_regc_destroy(uas->login.regc);
@@ -151,7 +151,7 @@ msip_ua* msip_ua_find_by_name(pj_str_t *name) {
 // uri help
 pj_bool_t msip_ua_print_uri(msip_ua *ua, pj_str_t *uri) {
 
-	if (ua->pool == 0)
+	if (ua->port == 0)
 		uri->slen = sprintf(uri->ptr, "<sip:%.*s@%.*s>",
 				(int) ua->login.cred.username.slen, ua->login.cred.username.ptr,
 				(int) ua->login.cred.realm.slen, ua->login.cred.realm.ptr);
@@ -233,10 +233,27 @@ MLIB_LOCAL int msip_ua_transport_port(msip_ua *ua) {
 			&& sip->transport.udp != 0) {
 		port = sip->transport.udp->local_name.port;
 	}
+#if PJSIP_HAS_TLS_TRANSPORT
+	if (pj_strcmp2(&ua->transport, "rls") == 0 && sip->transport.tls != 0) {
+		port = sip->transport.tls->addr_name.port;
+	}
+#endif
 	return port;
 }
 
 pj_list* msip_ua_list_call(msip_ua *ua) {
 	return &ua->call;
 }
-
+static int restart_ua(void *value, const void *node) {
+	msip_ua *uas = (msip_ua*) node;
+	if (uas->login.state == msip_state_disconnect
+	//|| uas->login.state == msip_state_error
+			)
+		msip_ua_register(uas);
+	return mlib_search_notfound;
+}
+MLIB_LOCAL void msip_ua_retry() {
+	pj_lock_acquire(ua_control->ua_lock);
+	pj_list_search(&ua_control->ua_list, NULL, restart_ua);
+	pj_lock_release(ua_control->ua_lock);
+}

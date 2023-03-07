@@ -9,9 +9,10 @@
 #define MSIP_BASE_H_
 
 #include <mlib/module.h>
+#include <mlib/context.h>
 #include <pjsip.h>
 
-pj_status_t msip_init();
+pj_status_t msip_init(mlib_context_l *ctl);
 void msip_close();
 
 mlib_module_t* msip_mod();

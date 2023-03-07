@@ -10,6 +10,7 @@
 MLIB_LOCAL struct msip_system *_msip_obj = NULL;
 extern MLIB_LOCAL void _init_sip_ua();
 extern void MLIB_LOCAL _mlib_media_init();
+extern MLIB_LOCAL void _msip_conf(mlib_context_l *ctl);
 MLIB_LOCAL void _msip_inv_module();
 
 static pj_bool_t init = PJ_FALSE;
@@ -31,7 +32,8 @@ static void util_event_handle(void *user_data, int type, void *event_data) {
 		mlib_module_unload(_msip_obj->mod);
 	}
 }
-pj_status_t msip_init() {
+
+pj_status_t msip_init(mlib_context_l *ctl) {
 	if (init)
 		return 1;
 
@@ -42,7 +44,7 @@ pj_status_t msip_init() {
 			sizeof(struct msip_system));
 	_msip_obj->mod = sip_mod;
 	pjsip_endpoint *endpt;
-	status = pjsip_endpt_create(mlib_pool_factory(), "asip.V1", &endpt);
+	status = pjsip_endpt_create(mlib_pool_factory(), "Msip", &endpt);
 	status |= pjsip_tsx_layer_init_module(endpt);
 	status |= pjsip_ua_init_module(endpt, NULL);
 	status |= pjsip_100rel_init_module(endpt);
@@ -50,18 +52,17 @@ pj_status_t msip_init() {
 	pj_uint16_t af = pj_AF_INET();
 	pjsip_udp_transport_cfg udp_cfg;
 	pjsip_udp_transport_cfg_default(&udp_cfg, af);
+	// ipv4 config
 	if (PJ_AF_INET == af) {
+		//udp tranport
 		status = pjsip_udp_transport_start2(endpt, &udp_cfg,
 				&_msip_obj->transport.udp);
-	}
-	//ipv6 is not suport for now
-
-	//tcp transport
-	if (PJ_AF_INET == af) {
+		//tcp transport
 		pjsip_tcp_transport_cfg tcp_cfg;
 		pjsip_tcp_transport_cfg_default(&tcp_cfg, af);
 		status = pjsip_tcp_transport_start3(endpt, &tcp_cfg,
 				&_msip_obj->transport.tcp);
+		// tls transport
 	}
 
 	_msip_obj->endpoint = endpt;
@@ -81,7 +82,9 @@ pj_status_t msip_init() {
 	_msip_obj->time.poll_time.msec = 480;
 	mlib_util_timer_register(_msip_obj->time.timer);
 	mlib_module_add_callback(sip_mod, NULL, clear_sip);
-	return 1;
+	if (ctl)
+		_msip_conf(ctl);
+	return 0;
 }
 void msip_close() {
 	mlib_module_unload(_msip_obj->mod);

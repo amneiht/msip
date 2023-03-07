@@ -66,7 +66,7 @@ static void reg_cb(struct pjsip_regc_cbparam *param) {
 			}
 		} else {
 			pjsip_regc_release_transport(ua->login.regc);
-			ua->login.state = msip_state_null;
+			ua->login.state = msip_state_error;
 			ua->login.tlogin.sec = 0;
 			PJ_LOG(4, (MLIB_NAME, "null transport"));
 		}
@@ -109,6 +109,13 @@ static int create_newreg(msip_ua *uas) {
 	}
 	pjsip_regc_set_delay_before_refresh(uas->login.regc, 5);
 	status = pjsip_regc_set_credentials(uas->login.regc, 1, &uas->login.cred);
+
+	// test for out bountproxy
+//	pjsip_host_port hps;
+//	hps.host = pj_str("192.168.1.204");
+//	hps.port = 5060;
+//	pjsip_regc_set_via_sent_by(uas->login.regc, &hps, NULL);
+
 	if (status != PJ_SUCCESS) {
 		fprintf(stderr, "loi cred \n");
 		return -19;

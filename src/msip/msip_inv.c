@@ -253,8 +253,6 @@ static void call_on_state_changed(pjsip_inv_session *inv, pjsip_event *e) {
 
 		mlib_event_send(_msip_obj->event, MSIP_EVENT_INV_STATE_DISCONNECTED,
 				&cont);
-		msip_ua *ua = call->ua;
-
 		mlib_mem_mask_destroy(call);
 		mlib_mmap_unset(inv_map, inv);
 	}

@@ -16,7 +16,7 @@ static mlib_module_t *main_module;
 
 extern MLIB_LOCAL void mlib_module_init();
 extern MLIB_LOCAL void mlib_module_close();
-
+extern MLIB_LOCAL void _mlib_context_init();
 #if MLIB_MEM_DEBUG == 1
 extern MLIB_LOCAL void mem_init_debug();
 #endif
@@ -25,7 +25,7 @@ pj_status_t mlib_init() {
 		return 0;
 	core_init = PJ_TRUE;
 	pj_status_t init = pj_init();
-	pj_log_set_level(3);
+	pj_log_set_level(4);
 	if (init != PJ_SUCCESS)
 		return init;
 	init = pjlib_util_init();
@@ -43,7 +43,7 @@ pj_status_t mlib_init() {
 #if MLIB_MEM_DEBUG == 1
 	mem_init_debug();
 #endif
-
+	_mlib_context_init();
 	return 0;
 
 }

@@ -268,7 +268,18 @@ void mlib_module_add_callback(mlib_module_t *mod, void *data,
 	_mrls(mod)
 }
 void mlib_module_conf(const mlib_context_l *ctx) {
+	if (!ctx)
+		return;
+	mlib_context_t *conf = mlib_context_list_find2(ctx, "core");
+	mlib_context_val *val;
+	if (conf) {
+		val = mlib_context_type_get_value2(conf, "loglv");
+		if (val) {
+			pj_log_set_level(mlib_context_val_to_int(val));
+		}
 
+	}
+	//load module in the future
 }
 /* mod controler */
 //#define get_mod(p) (struct mlib_module_ctl *)((void*)p - sizeof(struct mlib_module_ctl))

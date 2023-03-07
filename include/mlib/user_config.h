@@ -24,7 +24,7 @@
 #endif
 
 #ifndef MLIB_MEM_DEBUG
-#define MLIB_MEM_DEBUG 0
+#define MLIB_MEM_DEBUG 1
 #endif
 
 #endif /* CONFIG_H_ */

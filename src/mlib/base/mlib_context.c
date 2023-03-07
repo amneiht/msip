@@ -25,7 +25,7 @@ struct mlib_context_list {
 	pj_list list;
 
 };
-static pj_cis_t *cis_value;
+static pj_cis_t *cis_value = NULL;
 static pj_cis_t *cis_cmt;
 static pj_cis_t *cis_context;
 static char *conf_path;
@@ -37,7 +37,9 @@ void mlib_conf_set_path(const char *path) {
 	sprintf(conf_path, "%s", path);
 }
 
-MLIB_LOCAL void _mlib_context_init(pj_pool_t *pool) {
+MLIB_LOCAL void _mlib_context_init() {
+
+	pj_pool_t *pool = mlib_module_pool(_mlib_mod());
 	conf_path = pj_pool_alloc(pool, 500);
 #if defined ( __linux__)
 	sprintf(conf_path, "%s", "/tmp/core");
@@ -231,7 +233,7 @@ mlib_context_l* mlib_context_list_prase(pj_pool_t *pool, const pj_str_t *file) {
 }
 mlib_context_l* mlib_context_list_prase2(pj_pool_t *pool, char *buffer,
 		long len) {
-
+	_mlib_context_init();
 	mlib_context_l *conf = pj_pool_alloc(pool, sizeof(mlib_context_l));
 
 	conf->pool = pool;
@@ -448,27 +450,16 @@ mlib_context_t* mlib_context_type_clone(pj_pool_t *pool,
 	return clone;
 
 }
-/** not now */
-/* list clone
- mlib_context_l* mlib_context_list_clone(pj_pool_t *pool,
- const mlib_context_l *ctx) {
- mlib_context_l *clone = pj_pool_alloc(pool, sizeof(mlib_context_l));
- clone->tree = PJ_POOL_ALLOC_T(pool, pj_rbtree);
- pj_rbtree_init(clone->tree, rbtree_key_cmp);
- pj_list_init(&clone->list);
- if (ctx->path.slen > 0)
- pj_strdup(pool, &clone->path, ctx->path);
- else
- clone->path.slen = 0;
+// char funtion
+mlib_context_t* mlib_context_list_find2(const mlib_context_l *list,
+		const char *name) {
+	convert_str(sname, name);
+	return mlib_context_list_find(list, sname);
+}
+mlib_context_val* mlib_context_type_get_value2(const mlib_context_t *ctx,
+		const char *val_name) {
+	convert_str(sname, val_name);
+	return mlib_context_type_get_value(ctx, sname);
+}
 
- clone->pool = pool;
- const mlib_context_t *p, *last;
- last = &ctx->list;
- p = last->next;
- while (p != last) {
- mlib_context_t *cus = ctx_clone(pool, p);
- p = p->next;
- }
- return clone;
- }
- end of clone */
+// end char funtion

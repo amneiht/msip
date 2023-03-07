@@ -29,9 +29,7 @@ struct mod_commad {
 	pj_pool_t *tmp;
 	pj_list cmlist;
 //	mlib_list(struct ui_cmd , cmlist)
-
-}
-;
+};
 
 struct ui_cmd {
 	PJ_DECL_LIST_MEMBER(struct ui_cmd )

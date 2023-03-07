@@ -33,3 +33,7 @@ const pj_str_t* msip_event_get_caller(const mlib_container *event_data) {
 const pj_str_t* msip_event_get_callee(const mlib_container *event_data) {
 	return (pj_str_t*) event_data->data[pos_callee];
 }
+MLIB_LOCAL void msip_event_disable_call(mlib_container *event_data) {
+	pj_bool_t *active = event_data->data[pos_active];
+	*active = PJ_FALSE;
+}

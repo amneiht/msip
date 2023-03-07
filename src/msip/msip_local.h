@@ -46,6 +46,9 @@ struct msip_system {
 	struct {
 		pjsip_tpfactory *tcp;
 		pjsip_transport *udp;
+#if PJSIP_HAS_TLS_TRANSPORT == 1
+		pjsip_tpfactory *tls;
+#endif
 	} transport;
 	struct {
 		mlib_timer_t *timer;
@@ -114,4 +117,5 @@ typedef pj_int32_t (*element_cmp)(const pj_list_type *ele1,
 		const pj_list_type *ele2);
 
 MLIB_LOCAL void msip_list_add(pj_list *a, pj_list_type *b, element_cmp ele_cmp);
+MLIB_LOCAL void msip_event_disable_call(mlib_container *event_data);
 #endif /* MSIP_MSIP_LOCAL_H_ */
